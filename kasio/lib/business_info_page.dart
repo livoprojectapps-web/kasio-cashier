@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
 
+// =====================
+// Halaman 3
+// =====================
 class BusinessInfoPage extends StatefulWidget {
   const BusinessInfoPage({super.key});
 
@@ -40,7 +43,7 @@ class _BusinessInfoPageState extends State<BusinessInfoPage> {
           children: [
             // Progress bar step
             const Text(
-              "Step 1 of 4",
+              "Step 3 of 4",
               style: TextStyle(
                 color: Colors.orange,
                 fontWeight: FontWeight.w600,
@@ -50,7 +53,7 @@ class _BusinessInfoPageState extends State<BusinessInfoPage> {
             ClipRRect(
               borderRadius: BorderRadius.circular(10),
               child: LinearProgressIndicator(
-                value: 0.25,
+                value: 0.75,
                 color: Colors.orange,
                 backgroundColor: Colors.white10,
                 minHeight: 6,
@@ -174,7 +177,19 @@ class _BusinessInfoPageState extends State<BusinessInfoPage> {
               width: double.infinity,
               child: ElevatedButton(
                 onPressed: () {
-                  // TODO: lanjut ke step berikutnya
+                  Navigator.push(
+                    context,
+                    PageRouteBuilder(
+                      pageBuilder: (_, __, ___) => const VerifyIdentityPage(),
+                      transitionsBuilder:
+                          (context, animation, secondaryAnimation, child) {
+                        return FadeTransition(
+                          opacity: animation,
+                          child: child,
+                        );
+                      },
+                    ),
+                  );
                 },
                 style: ElevatedButton.styleFrom(
                   backgroundColor: Colors.orange,
@@ -224,6 +239,168 @@ class _BusinessInfoPageState extends State<BusinessInfoPage> {
             ),
           ),
         ],
+      ),
+    );
+  }
+}
+
+// =====================
+// Halaman 4 (Overlay OTP)
+// =====================
+class VerifyIdentityPage extends StatefulWidget {
+  const VerifyIdentityPage({super.key});
+
+  @override
+  State<VerifyIdentityPage> createState() => _VerifyIdentityPageState();
+}
+
+class _VerifyIdentityPageState extends State<VerifyIdentityPage>
+    with SingleTickerProviderStateMixin {
+  late AnimationController _controller;
+  late Animation<double> _scaleAnimation;
+  late Animation<double> _opacityAnimation;
+
+  @override
+  void initState() {
+    super.initState();
+
+    _controller = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 600),
+    );
+
+    _scaleAnimation = CurvedAnimation(
+      parent: _controller,
+      curve: Curves.easeOutBack,
+    );
+
+    _opacityAnimation = Tween<double>(begin: 0, end: 1).animate(
+      CurvedAnimation(parent: _controller, curve: Curves.easeIn),
+    );
+
+    _controller.forward();
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  Widget _buildOption({
+    required IconData icon,
+    required String title,
+    required VoidCallback onTap,
+  }) {
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        margin: const EdgeInsets.symmetric(vertical: 8),
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+        decoration: BoxDecoration(
+          color: Colors.orange.shade600.withOpacity(0.95),
+          borderRadius: BorderRadius.circular(16),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.orange.shade900.withOpacity(0.3),
+              blurRadius: 8,
+              offset: const Offset(0, 4),
+            ),
+          ],
+        ),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Row(
+              children: [
+                Icon(icon, color: Colors.white, size: 22),
+                const SizedBox(width: 12),
+                Text(
+                  title,
+                  style: const TextStyle(
+                    color: Colors.white,
+                    fontWeight: FontWeight.w600,
+                    fontSize: 16,
+                  ),
+                ),
+              ],
+            ),
+            const Icon(Icons.arrow_forward_ios, color: Colors.white, size: 18),
+          ],
+        ),
+      ),
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      backgroundColor: Colors.orange.shade100,
+      body: Center(
+        child: FadeTransition(
+          opacity: _opacityAnimation,
+          child: ScaleTransition(
+            scale: _scaleAnimation,
+            child: Container(
+              width: MediaQuery.of(context).size.width * 0.85,
+              padding: const EdgeInsets.all(20),
+              decoration: BoxDecoration(
+                color: Colors.orange.shade700,
+                borderRadius: BorderRadius.circular(24),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.orange.shade900.withOpacity(0.4),
+                    blurRadius: 20,
+                    offset: const Offset(0, 8),
+                  ),
+                ],
+              ),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  const Text(
+                    "Verify Your Identity",
+                    style: TextStyle(
+                      fontSize: 20,
+                      color: Colors.white,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  const SizedBox(height: 10),
+                  const Text(
+                    "Please select where you'd like to receive your one-time password.",
+                    textAlign: TextAlign.center,
+                    style: TextStyle(
+                      color: Colors.white70,
+                      fontSize: 14,
+                    ),
+                  ),
+                  const SizedBox(height: 20),
+                  _buildOption(
+                    icon: Icons.email_outlined,
+                    title: "Email",
+                    onTap: () {},
+                  ),
+                  _buildOption(
+                    icon: Icons.chat_outlined,
+                    title: "WhatsApp",
+                    onTap: () {},
+                  ),
+                  _buildOption(
+                    icon: Icons.alternate_email_outlined,
+                    title: "Gmail",
+                    onTap: () {},
+                  ),
+                  const SizedBox(height: 10),
+                  IconButton(
+                    icon: const Icon(Icons.close, color: Colors.white70),
+                    onPressed: () => Navigator.pop(context),
+                  )
+                ],
+              ),
+            ),
+          ),
+        ),
       ),
     );
   }
