@@ -1,3 +1,4 @@
+import 'dart:ui';
 import 'package:flutter/material.dart';
 
 // =====================
@@ -177,18 +178,13 @@ class _BusinessInfoPageState extends State<BusinessInfoPage> {
               width: double.infinity,
               child: ElevatedButton(
                 onPressed: () {
-                  Navigator.push(
-                    context,
-                    PageRouteBuilder(
-                      pageBuilder: (_, __, ___) => const VerifyIdentityPage(),
-                      transitionsBuilder:
-                          (context, animation, secondaryAnimation, child) {
-                        return FadeTransition(
-                          opacity: animation,
-                          child: child,
-                        );
-                      },
-                    ),
+                  showGeneralDialog(
+                    context: context,
+                    barrierDismissible: true,
+                    barrierLabel: "Verify",
+                    barrierColor: Colors.transparent,
+                    transitionDuration: const Duration(milliseconds: 400),
+                    pageBuilder: (_, __, ___) => const VerifyIdentityPage(),
                   );
                 },
                 style: ElevatedButton.styleFrom(
@@ -274,9 +270,10 @@ class _VerifyIdentityPageState extends State<VerifyIdentityPage>
       curve: Curves.easeOutBack,
     );
 
-    _opacityAnimation = Tween<double>(begin: 0, end: 1).animate(
-      CurvedAnimation(parent: _controller, curve: Curves.easeIn),
-    );
+    _opacityAnimation = Tween<double>(
+      begin: 0,
+      end: 1,
+    ).animate(CurvedAnimation(parent: _controller, curve: Curves.easeIn));
 
     _controller.forward();
   }
@@ -298,7 +295,7 @@ class _VerifyIdentityPageState extends State<VerifyIdentityPage>
         margin: const EdgeInsets.symmetric(vertical: 8),
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
         decoration: BoxDecoration(
-          color: Colors.orange.shade600.withOpacity(0.95),
+          color: Colors.orange.shade600.withOpacity(0.9),
           borderRadius: BorderRadius.circular(16),
           boxShadow: [
             BoxShadow(
@@ -335,72 +332,80 @@ class _VerifyIdentityPageState extends State<VerifyIdentityPage>
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.orange.shade100,
-      body: Center(
-        child: FadeTransition(
-          opacity: _opacityAnimation,
-          child: ScaleTransition(
-            scale: _scaleAnimation,
-            child: Container(
-              width: MediaQuery.of(context).size.width * 0.85,
-              padding: const EdgeInsets.all(20),
-              decoration: BoxDecoration(
-                color: Colors.orange.shade700,
-                borderRadius: BorderRadius.circular(24),
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.orange.shade900.withOpacity(0.4),
-                    blurRadius: 20,
-                    offset: const Offset(0, 8),
+      backgroundColor: Colors.transparent, // agar blur terlihat
+      body: Stack(
+        children: [
+          // Efek blur pada background
+          BackdropFilter(
+            filter: ImageFilter.blur(sigmaX: 6, sigmaY: 6),
+            child: Container(color: Colors.black.withOpacity(0.2)),
+          ),
+
+          // Overlay OTP
+          Center(
+            child: FadeTransition(
+              opacity: _opacityAnimation,
+              child: ScaleTransition(
+                scale: _scaleAnimation,
+                child: Container(
+                  width: MediaQuery.of(context).size.width * 0.85,
+                  padding: const EdgeInsets.all(20),
+                  decoration: BoxDecoration(
+                    color: Colors.orange.shade700,
+                    borderRadius: BorderRadius.circular(24),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.orange.shade900.withOpacity(0.4),
+                        blurRadius: 20,
+                        offset: const Offset(0, 8),
+                      ),
+                    ],
                   ),
-                ],
-              ),
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  const Text(
-                    "Verify Your Identity",
-                    style: TextStyle(
-                      fontSize: 20,
-                      color: Colors.white,
-                      fontWeight: FontWeight.bold,
-                    ),
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      const Text(
+                        "Verify Your Identity",
+                        style: TextStyle(
+                          fontSize: 20,
+                          color: Colors.white,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                      const SizedBox(height: 10),
+                      const Text(
+                        "Please select where you'd like to receive your one-time password.",
+                        textAlign: TextAlign.center,
+                        style: TextStyle(color: Colors.white70, fontSize: 14),
+                      ),
+                      const SizedBox(height: 20),
+                      _buildOption(
+                        icon: Icons.email_outlined,
+                        title: "Email",
+                        onTap: () {},
+                      ),
+                      _buildOption(
+                        icon: Icons.chat_outlined,
+                        title: "WhatsApp",
+                        onTap: () {},
+                      ),
+                      _buildOption(
+                        icon: Icons.alternate_email_outlined,
+                        title: "Gmail",
+                        onTap: () {},
+                      ),
+                      const SizedBox(height: 10),
+                      IconButton(
+                        icon: const Icon(Icons.close, color: Colors.white70),
+                        onPressed: () => Navigator.pop(context),
+                      ),
+                    ],
                   ),
-                  const SizedBox(height: 10),
-                  const Text(
-                    "Please select where you'd like to receive your one-time password.",
-                    textAlign: TextAlign.center,
-                    style: TextStyle(
-                      color: Colors.white70,
-                      fontSize: 14,
-                    ),
-                  ),
-                  const SizedBox(height: 20),
-                  _buildOption(
-                    icon: Icons.email_outlined,
-                    title: "Email",
-                    onTap: () {},
-                  ),
-                  _buildOption(
-                    icon: Icons.chat_outlined,
-                    title: "WhatsApp",
-                    onTap: () {},
-                  ),
-                  _buildOption(
-                    icon: Icons.alternate_email_outlined,
-                    title: "Gmail",
-                    onTap: () {},
-                  ),
-                  const SizedBox(height: 10),
-                  IconButton(
-                    icon: const Icon(Icons.close, color: Colors.white70),
-                    onPressed: () => Navigator.pop(context),
-                  )
-                ],
+                ),
               ),
             ),
           ),
-        ),
+        ],
       ),
     );
   }
